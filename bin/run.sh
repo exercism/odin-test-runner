@@ -80,7 +80,9 @@ else
     #      | GREP_COLOR='01;31' grep --color=always -E -e '^(ERROR:.*|.*failed)$|$' \
     #      | GREP_COLOR='01;32' grep --color=always -E -e '^.*passed$|$')
 
-    jq -n --arg output "${test_output}" '{version: 1, status: "fail", message: $output}' > "${results_file}"
+    jq -n --arg output "${test_output}" \
+          --arg status "${status}" \
+        '{version: 1, status: $status, message: $output}' > "${results_file}"
 fi
 
 echo "${slug}: done"
