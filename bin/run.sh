@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Synopsis:
 # Run the test runner on a solution.
@@ -17,7 +17,7 @@
 
 # If any required arguments is missing, print the usage and exit
 if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
-    echo "usage: ./bin/run.sh exercise-slug path/to/solution/folder/ path/to/output/directory/"
+    echo "usage: $0 exercise-slug path/to/solution/folder/ path/to/output/directory/"
     exit 1
 fi
 
@@ -26,6 +26,8 @@ solution_dir=$(realpath "${2%/}")
 output_dir=$(realpath "${3%/}")
 results_file="${output_dir}/results.json"
 
+cd "${solution_dir}" || exit 1
+
 # Create the output directory if it doesn't exist
 mkdir -p "${output_dir}"
 
@@ -33,19 +35,43 @@ echo "${slug}: testing..."
 
 # Run the tests for the provided implementation file and redirect stdout and
 # stderr to capture it
-test_output=$(false)
-# TODO: substitute "false" with the actual command to run the test:
-# test_output=$(command_to_run_tests 2>&1)
+compile_options=(
+    # ref https://odin-lang.org/docs/testing/#compile-time-options
+    -define:ODIN_TEST_SHORT_LOGS=true 
+    -define:ODIN_TEST_FANCY=false
+    -define:ODIN_TEST_RANDOM_SEED=1234567890
+    -define:ODIN_TEST_TRACK_MEMORY=false
+)
+
+raw_output=$( odin test . "${compile_options[@]}"  2>&1 )
+rc=$?
 
 # Write the results.json file based on the exit code of the command that was 
 # just executed that tested the implementation file
-if [ $? -eq 0 ]; then
-    jq -n '{version: 1, status: "pass"}' > ${results_file}
+if [ $rc -eq 0 ]; then
+    jq -n '{version: 1, status: "pass"}' > "${results_file}"
 else
-    # OPTIONAL: Sanitize the output
-    # In some cases, the test output might be overly verbose, in which case stripping
-    # the unneeded information can be very helpful to the student
-    # sanitized_test_output=$(printf "${test_output}" | sed -n '/Test results:/,$p')
+    # Sanitize the output:
+    # remove text that can change from run to run, or from system to system.
+    test_output=$(
+        gawk -v pwd="${PWD}/" '
+            /Starting test runner with [[:digit:]]+ threads/ {next}
+            /The random seed/ {next}
+            /To run only the failed test,/ {exit}
+            /Finished [[:digit:]]+ tests in / { sub(/ in [[:digit:].]+.s/, "") }
+            {
+                gsub(pwd, "")
+                print
+            }
+        ' <<< "$raw_output"
+    )
+
+    if [[ $test_output =~ .*$'\nFinished '[[:digit:]]+' tests.'.* ]]; then
+        # successfully compiled, but test failures
+        status='fail'
+    else
+        status='error'
+    fi
 
     # OPTIONAL: Manually add colors to the output to help scanning the output for errors
     # If the test output does not contain colors to help identify failing (or passing)
@@ -54,7 +80,7 @@ else
     #      | GREP_COLOR='01;31' grep --color=always -E -e '^(ERROR:.*|.*failed)$|$' \
     #      | GREP_COLOR='01;32' grep --color=always -E -e '^.*passed$|$')
 
-    jq -n --arg output "${test_output}" '{version: 1, status: "fail", message: $output}' > ${results_file}
+    jq -n --arg output "${test_output}" '{version: 1, status: "fail", message: $output}' > "${results_file}"
 fi
 
 echo "${slug}: done"

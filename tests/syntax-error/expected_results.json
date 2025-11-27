@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "status": "error",
-  "message": "TODO: replace with correct output"
+  "status": "fail",
+  "message": "syntax_error.odin(6:9) Error: String concatenation is only allowed with constant strings \n\treturn \"One for \" + name + \", one for me.\" \n\t       ^~~~~~~~~~~~~~~~^ "
 }

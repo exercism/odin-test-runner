@@ -1,5 +1,5 @@
 {
   "version": 1,
   "status": "fail",
-  "message": "TODO: replace with correct output"
+  "message": "[ERROR] --- [partial_fail_test.odin:7] expected two_fer() to be One for you, one for me., got One for failure, one for me.\n\nFinished 3 tests. 1 test failed.\n - partial_fail.test_no_name_given      \texpected two_fer() to be One for you, one for me., got One for failure, one for me."
 }
