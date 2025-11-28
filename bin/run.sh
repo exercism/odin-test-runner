@@ -37,6 +37,7 @@ echo "${slug}: testing..."
 # stderr to capture it
 compile_options=(
     # ref https://odin-lang.org/docs/testing/#compile-time-options
+    -define:ODIN_TEST_LOG_LEVEL=warning
     -define:ODIN_TEST_SHORT_LOGS=true 
     -define:ODIN_TEST_FANCY=false
     -define:ODIN_TEST_RANDOM_SEED=1234567890
@@ -55,12 +56,10 @@ else
     # remove text that can change from run to run, or from system to system.
     test_output=$(
         gawk -v pwd="${PWD}/" '
-            /Starting test runner with [[:digit:]]+ threads/ {next}
-            /The random seed/ {next}
             /To run only the failed test,/ {exit}
             /Finished [[:digit:]]+ tests in / { sub(/ in [[:digit:].]+.s/, "") }
             {
-                gsub(pwd, "")
+                gsub(pwd, "") # trim full paths from filenames
                 print
             }
         ' <<< "$raw_output"
