@@ -20,8 +20,8 @@ WORKDIR /src/Odin
 # Tell the build which llvm-config to use to avoid symlink hacks
 RUN make -j"$(nproc)" release-native LLVM_CONFIG=llvm-config-18
 
-# Fix a bug in this Odin release.  When we upgrade, revisit this.
-RUN sed -E -i '983,984s/\<err\>/marshall_err/g' /src/Odin/core/testing/runner.odin
+## Fix a bug in this Odin release.  When we upgrade, revisit this.
+#RUN sed -E -i '983,984s/\<err\>/marshall_err/g' /src/Odin/core/testing/runner.odin
 
 # ---------- Runtime stage ----------
 FROM ubuntu:24.04 AS runtime
