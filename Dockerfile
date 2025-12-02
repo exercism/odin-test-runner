@@ -7,7 +7,7 @@ FROM ubuntu:24.04 AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      git build-essential make ca-certificates \
+      git build-essential make ca-certificates jq \
       clang-18 llvm-18-dev \
   && update-ca-certificates \
   && rm -rf /var/lib/apt/lists/*
@@ -21,7 +21,7 @@ WORKDIR /src/Odin
 RUN make -j"$(nproc)" release-native LLVM_CONFIG=llvm-config-18
 
 # Fix a bug in this Odin release.  When we upgrade, revisit this.
-RUN sed -E -i '983,984s/\<err\>/marshall_err/g' /src/Odin/core/testing/runner.odin
+RUN sed -E -i '983,984s/\<err\>/marshal_err/g' /src/Odin/core/testing/runner.odin
 
 # ---------- Runtime stage ----------
 FROM ubuntu:24.04 AS runtime
