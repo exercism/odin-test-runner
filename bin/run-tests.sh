@@ -18,7 +18,7 @@ for test_dir in tests/*; do
     test_dir_name=$(basename "${test_dir}")
     test_dir_path=$(realpath "${test_dir}")
 
-    bin/run.sh "${test_dir_name}" "${test_dir_path}" "${test_dir_path}"
+    bash -x bin/run.sh "${test_dir_name}" "${test_dir_path}" "${test_dir_path}"
 
     # OPTIONAL: Normalize the results file
     # If the results.json file contains information that changes between 
