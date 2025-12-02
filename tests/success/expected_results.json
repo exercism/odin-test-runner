@@ -1,4 +1,21 @@
 {
-  "version": 1,
-  "status": "pass"
+  "version": 3,
+  "status": "pass",
+  "tests": [
+    {
+      "name": "No name given",
+      "status": "pass",
+      "test_code": "testing.expect_value(t, two_fer(), \"One for you, one for me.\")"
+    },
+    {
+      "name": "A name given",
+      "status": "pass",
+      "test_code": "testing.expect_value(t, two_fer(\"Alice\"), \"One for Alice, one for me.\")"
+    },
+    {
+      "name": "test_another_name_given",
+      "status": "pass",
+      "test_code": "testing.expect_value(t, two_fer(\"Bob\"), \"One for Bob, one for me.\")"
+    }
+  ]
 }

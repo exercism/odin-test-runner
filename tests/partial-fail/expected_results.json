@@ -1,5 +1,25 @@
 {
-  "version": 1,
+  "version": 3,
   "status": "fail",
-  "message": "[ERROR] --- [partial_fail_test.odin:7] expected two_fer() to be One for you, one for me., got One for failure, one for me.\n\nFinished 3 tests. 1 test failed.\n - partial_fail.test_no_name_given      \texpected two_fer() to be One for you, one for me., got One for failure, one for me."
+  "tests": [
+    {
+      "name": "No name given",
+      "message": "expected two_fer() to be One for you, one for me., got One for failure, one for me.",
+      "status": "fail",
+      "task_id": "1",
+      "test_code": "testing.expect_value(t, two_fer(), \"One for you, one for me.\")"
+    },
+    {
+      "name": "A name given",
+      "status": "pass",
+      "task_id": "2",
+      "test_code": "testing.expect_value(t, two_fer(\"Alice\"), \"One for Alice, one for me.\")"
+    },
+    {
+      "name": "Another name given",
+      "status": "pass",
+      "task_id": "2",
+      "test_code": "testing.expect_value(t, two_fer(\"Bob\"), \"One for Bob, one for me.\")"
+    }
+  ]
 }
