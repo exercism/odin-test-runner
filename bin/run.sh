@@ -17,13 +17,11 @@
 
 #------------------------------------------------------------
 # Some global variables (passing arrays in bash is annoying)
-declare -A odin_test_results
 declare -A descriptions
 declare -A task_ids
 declare -A test_code
 declare -A failure_messages
 declare -a test_names
-declare test_report_file
 declare results_file
 
 #------------------------------------------------------------
@@ -42,10 +40,8 @@ run_tests() {
         -define:ODIN_TEST_FANCY=false
         -define:ODIN_TEST_RANDOM_SEED=1234567890
         -define:ODIN_TEST_TRACK_MEMORY=false
-        -define:ODIN_TEST_JSON_REPORT="${test_report_file}"
     )
 
-    rm -f "$test_report_file"
     odin test . "${compile_options[@]}"  2>&1
 }
 
@@ -94,8 +90,8 @@ write_results_v1() {
 write_results_v2() {
     local package_name=$1 rc=$2 test_output=$3
 
-    if [[ ! -f $test_report_file ]]; then
-        # Compilation error: `odin test` did not create the file
+    # If we don't see the test summary, it must be a compilation error.
+    if [[ $test_output != *"Finished "+([0-9])" tests."* ]]; then
         jq  -n \
             --argjson version 3 \
             --arg     status  "error" \
@@ -104,14 +100,11 @@ write_results_v2() {
         return
     fi
 
-    # Read the JSON report file that `odin test` spits out
-    get_odin_test_statuses
+    # Get failure messages from the test output
+    parse_odin_test_output "${test_output}"
 
     # Parse the test.odin file
     read_test_file
-
-    # Get failure messages from the test output
-    parse_odin_test_output "${test_output}"
 
     # Now, we can actually compose the results.json file
     local status=pass
@@ -130,15 +123,11 @@ compose_test_results() {
 
     for test_name in "${test_names[@]}"; do
         args=( --arg name "${descriptions["$test_name"]}" )
-        if [[ -v "odin_test_results[$test_name]" ]] && "${odin_test_results["$test_name"]}"; then
-            status=pass
-        else
+        if [[ -v "failure_messages[$test_name]" ]]; then
             status=fail
-            if [[ -v "failure_messages[$test_name]" ]]; then
-                args+=( --arg message "${failure_messages[$test_name]}" )
-            else
-                args+=( --arg message "unknown" )   # TODO, more needed here
-            fi
+            args+=( --arg message "${failure_messages[$test_name]}" )
+        else
+            status=pass
         fi
         args+=( --arg status "$status" )
 
@@ -159,19 +148,6 @@ compose_test_results() {
     done
 
     echo "${json}"
-}
-
-# Populate the global `odin_test_results` map
-get_odin_test_statuses() {
-    local name status
-
-    while IFS=$'\t' read -r name status; do
-        odin_test_results["$name"]=$status
-    done < <(
-        jq -r --arg package "$package_name" '
-            .packages[$package][] | [.name, .success] | @tsv
-        ' "${test_report_file}"
-    )
 }
 
 # Parse the test.odin file to get the canonical order of the tests. 
@@ -272,7 +248,6 @@ main() {
     cd "${solution_dir}" || exit 1
     mkdir -p "${output_dir}"
 
-    test_report_file="${output_dir}/tests.json"
     results_file="${output_dir}/results.json"
 
     echo "${slug}: testing..."
