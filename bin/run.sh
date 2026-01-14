@@ -54,7 +54,7 @@ run_tests() {
 sanitize_odin_test_output() {
     gawk -v pwd="${PWD}/" '
         /To run only the failed test,/ {exit}
-        /Finished [[:digit:]]+ tests in / { sub(/ in [[:digit:].]+.s/, "") }
+        /Finished [[:digit:]]+ tests? in / { sub(/ in [[:digit:].]+.s/, "") }
         {
             gsub(pwd, "") # trim full paths from filenames
             print
@@ -77,7 +77,7 @@ write_results_v1() {
     if (( rc == 0 )); then
         jq -n '{version: 1, status: "pass"}' > "${results_file}"
     else
-        if [[ $test_output =~ .*$'\nFinished '[[:digit:]]+' tests.'.* ]]; then
+        if [[ $test_output =~ .*$'\nFinished '[[:digit:]]+' test'.* ]]; then
             # Successfully compiled, but test failures
             status='fail'
         else
@@ -235,7 +235,7 @@ parse_odin_test_output() {
 
     while IFS= read -r line; do
         if ! $seen_finished; then
-            if [[ $line == "Finished "*" tests. "*" test"*"failed." ]]; then
+            if [[ $line == "Finished "*" test"?(s)". "*" test"*"failed." ]]; then
                 seen_finished=true
             fi
         else
