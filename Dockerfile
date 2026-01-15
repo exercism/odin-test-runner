@@ -17,13 +17,11 @@ END_APT
 
 WORKDIR /src
 ARG URL
-ARG TARBALL
-RUN <<END_ODIN
+RUN << END_ODIN
     set -e
-    curl -OL "${URL}"
-    tar zxf "${TARBALL}"
-    rm "${TARBALL}"
+    curl --silent --location "${URL}" | tar zxf -
     mv odin* Odin
+    ls -l Odin
 END_ODIN
 
 # Fix a bug in this Odin release.  When we upgrade, revisit this.
