@@ -3,10 +3,12 @@
 .github/
 .gitattributes
 .gitignore
+.dockerignore
 Dockerfile
 bin/run-in-docker.sh
 bin/run-tests-in-docker.sh
 bin/run-tests.sh
 bin/benchmark.sh
 bin/benchmark-in-docker.sh
+bin/docker-build
 tests/

@@ -32,8 +32,10 @@ output_dir=$(realpath "${3%/}")
 # Create the output directory if it doesn't exist
 mkdir -p "${output_dir}"
 
+image="exercism/odin-test-runner"
+
 # Build the Docker image
-docker build --rm -t exercism/odin-test-runner .
+bin/docker-build "${image}"
 
 # Run the Docker image using the settings mimicking the production environment
 docker run \
@@ -43,4 +45,4 @@ docker run \
     --mount type=bind,src="${solution_dir}",dst=/solution \
     --mount type=bind,src="${output_dir}",dst=/output \
     --mount type=tmpfs,dst=/tmp \
-    exercism/odin-test-runner "${slug}" /solution /output 
+    "${image}" "${slug}" /solution /output 

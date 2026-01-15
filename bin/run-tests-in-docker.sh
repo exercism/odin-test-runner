@@ -15,8 +15,10 @@
 # Stop executing when a command returns a non-zero return code
 set -e
 
+image="exercism/odin-test-runner"
+
 # Build the Docker image
-docker build --rm -t exercism/odin-test-runner .
+bin/docker-build "${image}"
 
 # Run the Docker image using the settings mimicking the production environment
 docker run \
@@ -28,4 +30,4 @@ docker run \
     --volume "${PWD}/bin/run-tests.sh:/opt/test-runner/bin/run-tests.sh" \
     --workdir /opt/test-runner \
     --entrypoint /opt/test-runner/bin/run-tests.sh \
-    exercism/odin-test-runner
+    "$image"

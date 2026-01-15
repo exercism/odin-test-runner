@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# vim: set ft=bash
+
+image_name=${1:-exercism/odin-test-runner}
+
+arch="amd64"
+case $(uname -m) in
+    arm64 | aarch64) arch=arm64 ;;
+    x86_64) arch=amd64 ;;
+esac
+
+docker build --build-arg ARCH="${arch}" --rm --tag "${image_name}" .
