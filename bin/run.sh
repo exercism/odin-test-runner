@@ -174,7 +174,7 @@ get_odin_test_statuses() {
     )
 }
 
-# Parse the test.odin file to get the canonical order of the tests. 
+# Parse the test.odin file to get the canonical order of the tests.
 # Populates the global maps:
 # - descriptions
 # - task_ids
@@ -185,7 +185,7 @@ read_test_file() {
     # parsing the test.odin using Odin.
 
     local -a test_body
-    local in_test=false in_proc=false
+    local in_test=false in_proc=false seen_proc=false
     local test_file test_name test_body description task_id trimmed
 
     for test_file in ./*_test.odin; do
@@ -211,10 +211,17 @@ read_test_file() {
                     fi
                     [[ -n $task_id ]] && task_ids["$test_name"]=$task_id
                     test_names+=( "$test_name" )
+                    if [[ $line == *'{'*([[:space:]]) ]]; then
+                        in_proc=true
+                    else
+                        seen_proc=true
+                    fi
+                elif $seen_proc && [[ $line == *'{'*([[:space:]]) ]]; then
                     in_proc=true
                 elif [[ $line == '}' ]]; then
                     in_test=false
                     in_proc=false
+                    seen_proc=false
                     # shellcheck disable=SC2034
                     test_code["$test_name"]=$( join $'\n' "${test_body[@]}" )
                 elif $in_proc; then
