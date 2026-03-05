@@ -6,8 +6,7 @@ ARG URL="https://github.com/odin-lang/Odin/releases/download/${ODIN_REF}/${TARBA
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN << END_APT
-    set -e
+RUN bash -e << END_APT
     apt-get update -y
     apt-get install -y --no-install-recommends ca-certificates clang jq gawk locales curl
     update-ca-certificates
@@ -17,8 +16,7 @@ END_APT
 
 WORKDIR /src
 ARG URL
-RUN << END_ODIN
-    set -e
+RUN bash -e << END_ODIN
     curl --silent --location "${URL}" | tar zxf -
     mv odin* Odin
     ls -l Odin
