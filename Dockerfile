@@ -6,21 +6,17 @@ ARG URL="https://github.com/odin-lang/Odin/releases/download/${ODIN_REF}/${TARBA
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN bash -e << END_APT
-    apt-get update -y
-    apt-get install -y --no-install-recommends ca-certificates clang jq gawk locales curl
-    update-ca-certificates
-    locale-gen en_US.UTF-8
-    rm -rf /var/lib/apt/lists/*
-END_APT
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends ca-certificates clang jq gawk locales curl \
+    && update-ca-certificates \
+    && locale-gen en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
 ARG URL
-RUN bash -e << END_ODIN
-    curl --silent --location "${URL}" | tar zxf -
-    mv odin* Odin
-    ls -l Odin
-END_ODIN
+RUN curl --silent --location "${URL}" | tar zxf - \
+    && mv odin* Odin \
+    && ls -l Odin
 
 # Fix a bug in this Odin release.  When we upgrade, revisit this.
 RUN sed -E -i '983,984s/\<err\>/marshal_err/g' /src/Odin/core/testing/runner.odin
