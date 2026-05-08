@@ -3,7 +3,7 @@ ARG ARCH=amd64
 ARG TARBALL="odin-linux-${ARCH}-dev-2025-10-05.tar.gz"
 ARG URL="https://github.com/odin-lang/Odin/releases/download/${ODIN_REF}/${TARBALL}"
 
-FROM ubuntu:24.04
+FROM ubuntu:24.04@sha256:c4a8d5503dfb2a3eb8ab5f807da5bc69a85730fb49b5cfca2330194ebcc41c7b
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y \
