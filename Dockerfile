@@ -1,9 +1,9 @@
-ARG ODIN_REF=dev-2025-10
+ARG ODIN_REF=dev-2026-05
 ARG ARCH=amd64
-ARG TARBALL="odin-linux-${ARCH}-dev-2025-10-05.tar.gz"
+ARG TARBALL="odin-linux-${ARCH}-${ODIN_REF}.tar.gz"
 ARG URL="https://github.com/odin-lang/Odin/releases/download/${ODIN_REF}/${TARBALL}"
 
-FROM ubuntu:24.04@sha256:c4a8d5503dfb2a3eb8ab5f807da5bc69a85730fb49b5cfca2330194ebcc41c7b
+FROM ubuntu:26.04@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y \
@@ -17,9 +17,6 @@ ARG URL
 RUN curl --silent --location "${URL}" | tar zxf - \
     && mv odin* Odin \
     && ls -l Odin
-
-# Fix a bug in this Odin release.  When we upgrade, revisit this.
-RUN sed -E -i '983,984s/\<err\>/marshal_err/g' /src/Odin/core/testing/runner.odin
 
 ENV LC_ALL=en_US.UTF-8
 ENV ODIN_ROOT=/src/Odin
