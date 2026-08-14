@@ -1,4 +1,4 @@
-ARG ODIN_REF=dev-2026-07a
+ARG ODIN_REF=dev-2026-08
 ARG ARCH=amd64
 ARG TARBALL="odin-linux-${ARCH}-${ODIN_REF}.tar.gz"
 ARG URL="https://github.com/odin-lang/Odin/releases/download/${ODIN_REF}/${TARBALL}"
