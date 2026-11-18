@@ -36,6 +36,12 @@ usage() {
 
 run_tests() {
     local compile_options=(
+        # Build one LLVM module for the whole program. By default Odin builds
+        # one module per package (about 50 here) and links 50 object files.
+        # With one module, Odin spends less time generating procedures and
+        # the linker has less to do, which saves about 0.15 s per run.
+        -use-single-module
+
         # Ref https://odin-lang.org/docs/testing/#compile-time-options
         -define:ODIN_TEST_LOG_LEVEL=warning
         -define:ODIN_TEST_SHORT_LOGS=true
